@@ -1,18 +1,24 @@
+/**
+ * Code analysis on proving the asymptotic difference between O(nlog(n)) vs O(n^2) on
+ * large and small input values
+*/
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <random>
 #include <ctime>
 
 /// @brief Simple selection sort
 /// @param vec Vector of ints to sort
 /// @return Sorted version of the vector
-std::vector<int> SelectionSort(std::vector<int> vec)
+void SelectionSort(std::vector<long>& vec)
 {
     int smallest_index;
-    for (int i = 0; i < vec.size(); ++i)
+    for (size_t i = 0; i < vec.size(); ++i)
     {
         smallest_index = i;
-        for (int j = i + 1; j < vec.size(); ++j)
+        for (size_t j = i + 1; j < vec.size(); ++j)
         {
            if (vec[j] < vec[smallest_index])
                 smallest_index = j;
@@ -20,28 +26,140 @@ std::vector<int> SelectionSort(std::vector<int> vec)
 
         std::swap(vec[i], vec[smallest_index]);
     }
-
-    return vec;
 }
 
-std::vector<int> MergeSort(std::vector<int> vec)
-{
+// A function to merge two sorted subvectors
+void Merge(std::vector<long>& vec, int left, int mid, int right) {
+    // Create temporary vectors to store the subvectors
+    std::vector<long> left_vec(vec.begin() + left, vec.begin() + mid + 1);
+    std::vector<long> right_vec(vec.begin() + mid + 1, vec.begin() + right + 1);
 
+    // Initialize indices for the subvectors and the original vector
+    int i = 0, j = 0, k = left;
+
+    // Merge the subvectors in sorted order
+    while (i < left_vec.size() && j < right_vec.size()) {
+        if (left_vec[i] <= right_vec[j]) {
+            vec[k] = left_vec[i];
+            i++;
+        }
+        else {
+            vec[k] = right_vec[j];
+            j++;
+        }
+        k++;
+    }
+
+    // Copy the remaining elements of the left subvector, if any
+    while (i < left_vec.size()) {
+        vec[k] = left_vec[i];
+        i++;
+        k++;
+    }
+
+    // Copy the remaining elements of the right subvector, if any
+    while (j < right_vec.size()) {
+        vec[k] = right_vec[j];
+        j++;
+        k++;
+    }
 }
 
-bool ASSERT_CONTENTS(const std::vector<int>& a, const std::vector<int>& b)
+/// @brief Merge sort implementation\
+/// @brief Quick implementation with AI help as the implementation is not the focus.\
+/// @brief Credits to Bing AI and https://stackoverflow.com/questions/44973765/how-to-efficiently-merge-sort-with-vectors-using-c
+/// @param vec Vector to sort
+/// @param left left  index of a
+/// @return 
+void MergeSort(std::vector<long>& vec, int left, int right) {
+    // Base case: if the vector has one or zero elements, it is already sorted
+    if (left >= right) {
+        return;
+    }
+
+    // Recursive case: divide the vector into two halves and sort them separately
+    int mid = left + (right - left) / 2; // To avoid overflow
+    MergeSort(vec, left, mid);
+    MergeSort(vec, mid + 1, right);
+
+    // Merge the sorted halves
+    Merge(vec, left, mid, right);
+}
+
+/// @brief Compares equality of values in a and b
+/// @param a Vector a
+/// @param b Vector b
+/// @return True if all contents are equal in every index
+bool ASSERT_CONTENTS(const std::vector<long>& a, const std::vector<long>& b)
 {
     return (a == b);
 }
 
+/// @brief Generates a random vector. Inspired from: https://stackoverflow.com/questions/21516575/fill-a-vector-with-random-numbers-c
+/// @param N Amount of values to generate
+/// @param min Minimum element possible
+/// @param max Maximum element possible
+/// @return Newly generated populated vector
+std::vector<long> GenerateVector(size_t N, long min, long max)
+{
+    // Random setup
+    std::random_device rd;
+    std::mt19937_64 generator;
+    std::uniform_int_distribution<long> dist(min, max);
+
+    // Empty vector
+    std::vector<long> vec;
+
+    std::generate(vec.begin(), vec.end(), generator);
+
+    // Populate vector
+    for (size_t i = 0; i < N; i++)
+    {
+        vec.push_back(dist(generator));
+    }
+    
+
+    return vec;
+}
+
+
 int main()
 {
-    std::vector<int> vec{13,53,65,6,3,54,6};
-    auto sorted_vec = vec;
-    std::sort(sorted_vec.begin(), sorted_vec.end());
+    int trials;
+    size_t N;
+    long min, max;
+
+    for (int i = 0; i < trials; i++)
+    {
+        std::cout << "Input values: size, min value, max value" <<std::endl;
+        std::cin >> N >> min >> max;
 
 
-    std::cout << std::boolalpha<< ASSERT_CONTENTS(sorted_vec, SelectionSort(vec)) << std::endl;
+        std::vector<long> vec = GenerateVector(N, min, max), sorted, mergeSorted, selectionSorted;
+        sorted = mergeSorted = selectionSorted = vec;
+    
+
+        // Sort the sorted version with standard C++ sort
+        std::sort(sorted.begin(), sorted.end());
+
+        // Error checking
+        if (!ASSERT_CONTENTS(sorted, selectionSorted))
+        {
+            std::cerr << "ERROR! Selection sort did not sort properly";
+            return 1;
+        }
+        else if (!ASSERT_CONTENTS(sorted, mergeSorted))
+        {
+            std::cerr << "ERROR! Merge sort did not sort properly";
+            return 1;
+        }
+
+
+
+    }
+    
+    
+    // Collect info
 }
 
 
