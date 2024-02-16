@@ -129,33 +129,51 @@ int main()
     size_t N;
     long min, max;
 
+    std::cout << "Input how many runs" << std::endl;
+    std::cin >> trials;
+
     for (int i = 0; i < trials; i++)
     {
-        std::cout << "Input values: size, min value, max value" <<std::endl;
+        std::cout << "Input values: size min_value max_value" <<std::endl;
         std::cin >> N >> min >> max;
 
 
         std::vector<long> vec = GenerateVector(N, min, max), sorted, mergeSorted, selectionSorted;
         sorted = mergeSorted = selectionSorted = vec;
-    
 
         // Sort the sorted version with standard C++ sort
         std::sort(sorted.begin(), sorted.end());
 
+        std::cout << "\n\n" << std::endl;
+
+        // Time Selection Sort
+        std::clock_t start_time = std::clock();
+        SelectionSort(selectionSorted); // Call selection sort
+        std::clock_t tot_time = std::clock() - start_time;
+        std::cout << "Selection Sort Time: "
+                << ((double) tot_time) / (double) CLOCKS_PER_SEC
+                << " seconds" << std::endl;
+
+        // Time Merge Sort
+        start_time = std::clock();
+        MergeSort(mergeSorted, 0, mergeSorted.size() - 1); // Call MergeSort
+        tot_time = std::clock() - start_time;
+        std::cout << "Merge Sort Time: "
+                << ((double) tot_time) / (double) CLOCKS_PER_SEC
+                << " seconds" << std::endl;
+
+
         // Error checking
         if (!ASSERT_CONTENTS(sorted, selectionSorted))
         {
-            std::cerr << "ERROR! Selection sort did not sort properly";
+            std::cerr << "ERROR! Selection sort did not sort properly" << std::endl;
             return 1;
         }
         else if (!ASSERT_CONTENTS(sorted, mergeSorted))
         {
-            std::cerr << "ERROR! Merge sort did not sort properly";
+            std::cerr << "ERROR! Merge sort did not sort properly" << std::endl;
             return 1;
         }
-
-
-
     }
     
     
