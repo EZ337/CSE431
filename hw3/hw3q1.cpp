@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <random>
 #include <ctime>
+#include <string>
 
 /// @brief Simple selection sort
 /// @param vec Vector of ints to sort
@@ -149,18 +150,21 @@ int main()
         // Time Selection Sort
         std::clock_t start_time = std::clock();
         SelectionSort(selectionSorted); // Call selection sort
-        std::clock_t tot_time = std::clock() - start_time;
+        std::clock_t selection_time = std::clock() - start_time;
         std::cout << "Selection Sort Time: "
-                << ((double) tot_time) / (double) CLOCKS_PER_SEC
+                << ((double) selection_time) / (double) CLOCKS_PER_SEC
                 << " seconds" << std::endl;
 
         // Time Merge Sort
         start_time = std::clock();
         MergeSort(mergeSorted, 0, mergeSorted.size() - 1); // Call MergeSort
-        tot_time = std::clock() - start_time;
+        std::clock_t merge_time = std::clock() - start_time;
         std::cout << "Merge Sort Time: "
-                << ((double) tot_time) / (double) CLOCKS_PER_SEC
+                << ((double) merge_time) / (double) CLOCKS_PER_SEC
                 << " seconds" << std::endl;
+
+        std::string winner = (merge_time < selection_time) ? "MergeSort was faster" : "Selection Sort was faster";
+        std::cout << "\n\n" << winner << "for " << N << " values" << std::endl;
 
 
         // Error checking
