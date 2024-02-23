@@ -1,0 +1,52 @@
+Insertion Sort: 10 values2e-06 seconds
+Merge Sort: 7e-06 seconds
+
+
+Insertion Sort: 20 values2e-06 seconds
+Merge Sort: 1e-05 seconds
+
+
+Insertion Sort: 50 values3e-06 seconds
+Merge Sort: 1.5e-05 seconds
+
+
+Insertion Sort: 80 values6e-06 seconds
+Merge Sort: 2.2e-05 seconds
+
+
+Insertion Sort: 100 values1.4e-05 seconds
+Merge Sort: 4.9e-05 seconds
+
+
+Insertion Sort: 200 values2.7e-05 seconds
+Merge Sort: 5.4e-05 seconds
+
+
+Insertion Sort: 500 values0.00031 seconds
+Merge Sort: 0.000205 seconds
+
+
+Insertion Sort: 1000 values0.000899 seconds
+Merge Sort: 0.000341 seconds
+
+
+Insertion Sort: 2000 values0.003498 seconds
+Merge Sort: 0.000642 seconds
+
+
+Insertion Sort: 5000 values0.017116 seconds
+Merge Sort: 0.00147 seconds
+
+
+Insertion Sort: 10000 values0.066345 seconds
+Merge Sort: 0.002878 seconds
+
+
+Insertion Sort: 50000 values1.63116 seconds
+Merge Sort: 0.016188 seconds
+
+
+Insertion Sort: 100000 values6.65597 seconds
+Merge Sort: 0.035087 seconds
+
+

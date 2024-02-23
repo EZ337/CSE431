@@ -9,6 +9,7 @@
 #include <random>
 #include <ctime>
 #include <string>
+#include <fstream>
 
 /// @brief Simple selection sort
 /// @param vec Vector of ints to sort
@@ -26,6 +27,28 @@ void SelectionSort(std::vector<long>& vec)
         }
 
         std::swap(vec[i], vec[smallest_index]);
+    }
+}
+
+/// @brief Selection sort algorithm\
+/// @brief Credits to GeeksforGeeks: https://www.geeksforgeeks.org/cpp-program-for-insertion-sort/
+/// @param arr Vector to sort
+void InsertionSort(std::vector<long>& vec)
+{
+    int i, key, j;
+    for (i = 1; i < vec.size(); i++) {
+        key = vec[i];
+        j = i - 1;
+ 
+        // Move elements of arr[0..i-1],
+        // that are greater than key, to one
+        // position ahead of their
+        // current position
+        while (j >= 0 && vec[j] > key) {
+            vec[j + 1] = vec[j];
+            j = j - 1;
+        }
+        vec[j + 1] = key;
     }
 }
 
@@ -128,31 +151,38 @@ int main()
 {
     int trials;
     size_t N;
-    long min, max;
+    long min = -2000000000, max = 2000000000;
+
+    std::ofstream datatxt;
+    datatxt.open("data.txt");
 
     std::cout << "Input how many runs" << std::endl;
     std::cin >> trials;
 
     for (int i = 0; i < trials; i++)
     {
-        std::cout << "Input values: size min_value max_value" <<std::endl;
-        std::cin >> N >> min >> max;
+        std::cout << "Input size:" <<std::endl;
+        std::cin >> N;
 
 
-        std::vector<long> vec = GenerateVector(N, min, max), sorted, mergeSorted, selectionSorted;
-        sorted = mergeSorted = selectionSorted = vec;
+        std::vector<long> vec = GenerateVector(N, min, max), sorted, mergeSorted, insertionSorted;
+        sorted = mergeSorted = insertionSorted = vec;
 
         // Sort the sorted version with standard C++ sort
         std::sort(sorted.begin(), sorted.end());
 
         std::cout << "\n\n" << std::endl;
 
-        // Time Selection Sort
+        // Time Insertion Sort
         std::clock_t start_time = std::clock();
-        SelectionSort(selectionSorted); // Call selection sort
-        std::clock_t selection_time = std::clock() - start_time;
-        std::cout << "Selection Sort Time: "
-                << ((double) selection_time) / (double) CLOCKS_PER_SEC
+        InsertionSort(insertionSorted); // Call selection sort
+        std::clock_t insertion_time = std::clock() - start_time;
+        std::cout << "Insertion Sort Time: "
+                << ((double) insertion_time) / (double) CLOCKS_PER_SEC
+                << " seconds" << std::endl;
+
+        datatxt << "Insertion Sort: " << N << " values"
+                << ((double) insertion_time) / (double) CLOCKS_PER_SEC
                 << " seconds" << std::endl;
 
         // Time Merge Sort
@@ -163,12 +193,12 @@ int main()
                 << ((double) merge_time) / (double) CLOCKS_PER_SEC
                 << " seconds" << std::endl;
 
-        std::string winner = (merge_time < selection_time) ? "MergeSort was faster" : "Selection Sort was faster";
-        std::cout << "\n\n" << winner << "for " << N << " values" << std::endl;
-
+        datatxt << "Merge Sort: " 
+                << ((double) merge_time) / (double) CLOCKS_PER_SEC
+                << " seconds" << std::endl << std::endl << std::endl;
 
         // Error checking
-        if (!ASSERT_CONTENTS(sorted, selectionSorted))
+        if (!ASSERT_CONTENTS(sorted, insertionSorted))
         {
             std::cerr << "ERROR! Selection sort did not sort properly" << std::endl;
             return 1;
@@ -178,10 +208,16 @@ int main()
             std::cerr << "ERROR! Merge sort did not sort properly" << std::endl;
             return 1;
         }
+
+
+        std::string winner = (merge_time < insertion_time) ? "MergeSort was faster " : "Insertion Sort was faster ";
+        std::cout << "\n\n" << winner << "for " << N << " values" << std::endl << std::endl;
+
     }
     
     
     // Collect info
+    datatxt.close();
 }
 
 
