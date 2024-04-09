@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
 #include<iterator>
 #include <queue>
 #include <limits>
@@ -10,11 +11,19 @@
 #pragma region Graph
 // Structure to represent an edge in the graph
 struct Edge {
-    int to;
-    int weight;
+    int to = -1;
+    int weight = 0;
     Edge(int t, int w) : to(t), weight(w) {}
     friend bool operator==(const Edge& e1, const Edge& e2); 
     friend bool operator!=(const Edge& e1, const Edge& e2);
+
+    // Hash function for MyClass
+    struct Hash {
+        size_t operator()(const Edge& obj) const {
+            return std::hash<int>()(obj.to);
+        }
+    };
+    
 };
 
 bool operator==(const Edge& e1, const Edge& e2) {return (e1.to == e2.to && e1.weight == e2.weight); }
@@ -119,28 +128,74 @@ public:
 
 #pragma region STIG
 
+int Bruteforce(int& currVert, const std::vector<Edge>& edges, 
+    std::unordered_set<int> includedVertices, int incVerts, int& bestAnswer,
+    int allKeysHit, const Graph& graph)
+{
+    // If we have already gotten a great answer than we could possibly get, stop going
+    if (includedVertices.size() >= bestAnswer)
+        return bestAnswer;
+
+    // If we haven't explored this vertex yet, bfs it
+    if (includedVertices.find(currVert) == includedVertices.end())
+    {
+        // Include the vertex (So we don't process it again)
+        includedVertices.insert(currVert); // Add ot the included vertices list
+        ++incVerts; // Increase our count of incluuded vertices
+
+        // Check for KeyVertex;
+        if (graph.isKeyVertex(currVert))
+        {
+            ++allKeysHit;
+            std::cout << currVert << " Is a keyVertex. KeyVert Hit: " << allKeysHit <<
+                "\nAllKeysHit: " << (allKeysHit == graph.GetKeyVertices().size()) <<std::endl;
+
+            // If that was the last key vertex we care about, we're done
+            if (allKeysHit == graph.GetKeyVertices().size())
+            {
+                bestAnswer = includedVertices.size();
+                return incVerts;
+                // return includedVertices.size();
+            }
+        } 
+
+        for (auto edge : edges)
+        {
+            if (graph.isKeyVertex(edge.to))
+                ++allKeysHit;
+
+            Bruteforce(edge.to, graph[edge.to], includedVertices, incVerts, bestAnswer, allKeysHit, graph);
+        }
+
+    }
+
+    return bestAnswer;
+}
+
+
 int Steiner(const Graph& graph)
 {
     int incVerts = 0; //Included vertices
-    int bestAnswer = 0; // Best Answer so far
-    int allKeysHit = 0;
-    auto keyVerts = graph.GetKeyVertices();
+    int bestAnswer = graph.GetAll().size(); // Best Answer so far. Initialise to "All of the vertices"
+    int allKeysHit = 0; // Did we connect every Key Vertex
+    std::unordered_set<int> includedVertices; // All included vertices so far
 
+    // Initialise by starting with a random keyVertex
+    auto startingKeyVertex = *(graph.GetKeyVertices().begin()); // Pick a random starting vertex
+
+    // Start bruteforce
+    int result = Bruteforce(startingKeyVertex, graph[startingKeyVertex], includedVertices, incVerts, bestAnswer, allKeysHit, graph);
+
+    /*
     // Loop through every keyVertex
     for (auto &key : keyVerts)
     {
         ++incVerts;
 
+
         // Edges connected to the key vertex
         auto incidentVert = graph[key];
 
-
-        // Shortcut, we have to include this vertex since it's the only one connected to this key vertex
-        if (incidentVert.size() == 1 )
-        {
-            ++incVerts; // Include a vertex if it is connected to our keyVertex
-            continue;
-        }
 
         // For each incidentVertex, Process it's neighbours
         for (auto vertex : incidentVert)
@@ -148,17 +203,19 @@ int Steiner(const Graph& graph)
             // Probably have to brute force you
         }
     }
+    */
 
 
     // We did not hit every keyVertex. Graph might not be fully connected.
-    if (allKeysHit != keyVerts.size())
+    if (allKeysHit != graph.GetKeyVertices().size())
     {
         return 200;
     }
     
-
-    return incVerts;
+    return result;
 }
+
+
 
 #pragma endregion
 
@@ -198,10 +255,10 @@ int main(int argc, char *argv[])
     }
 
     // Bruteforce Steiner Graph solution
-    //int result = Steiner(graph);
+    int result = Steiner(graph);
 
 
-    //std::cout << result << std::endl;
+    std::cout << result << std::endl;
     return 0;
 }
 
