@@ -5,15 +5,22 @@
 #include<iterator>
 #include <queue>
 #include <limits>
+#include <fstream>
 
 // Structure to represent an edge in the graph
 struct Edge {
     int to;
     int weight;
     Edge(int t, int w) : to(t), weight(w) {}
+    friend bool operator==(const Edge& e1, const Edge& e2); 
+    friend bool operator!=(const Edge& e1, const Edge& e2);
 };
 
+bool operator==(const Edge& e1, const Edge& e2) {return (e1.to == e2.to && e1.weight == e2.weight); }
+bool operator !=(const Edge& e1, const Edge& e2) {return !(e1 == e2); };
+
 // Graph class using adjacency list representation
+// Base implemented by ChatGPT. Heavily modified for my needs
 class Graph 
 {
 private:
@@ -47,41 +54,52 @@ public:
     // const reference to the keyVertices of this graph
     const std::unordered_set<int>& GetKeyVertices() {return keyVertices;}
 
-    // Dijkstra's algorithm to find the shortest path from a source to all vertices
-    std::unordered_map<int, int> dijkstra(int source) {
-        std::unordered_map<int, int> distances;
-        std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>> pq;
+    // Visualises the graph
+    void VisualiseGraph(std::string filename = "graph.gv")
+    {
+        std::ofstream fp;
+        fp.open(filename);
 
-        for (auto& pair : adjList) {
-            int v = pair.first;
-            distances[v] = std::numeric_limits<int>::max();
+        // Open line with 
+        fp << "Graph{\n";
+        
+        // Colour keyVertices Red
+        for (int keyVert : keyVertices)
+        {
+            fp << '\t' << keyVert << " [color=red, style=filled]\n";
         }
 
-        distances[source] = 0;
-        pq.push(std::make_pair(0, source));
+        fp << '\n';
+        std::unordered_map<int, std::unordered_set<int>> alreadyMapped;
 
-        while (!pq.empty()) {
-            int u = pq.top().second;
-            pq.pop();
+        for (auto elm : adjList)
+        {
+            // Input the vertex 
+            fp << '\t' << elm.first << " -- {";
 
-            for (Edge& edge : adjList[u]) {
-                int v = edge.to;
-                int weight = edge.weight;
-
-                if (distances[u] + weight < distances[v]) {
-                    distances[v] = distances[u] + weight;
-                    pq.push(std::make_pair(distances[v], v));
+            // Connect the vertex
+            for (auto edges : elm.second)
+            {
+                if (alreadyMapped[edges.to].find(elm.first) == alreadyMapped[edges.to].end())
+                {
+                    fp << edges.to << ' ';
+                    alreadyMapped[elm.first].insert(edges.to); // Add to mapped
                 }
+
             }
+            fp << "}" << std::endl;
         }
 
-        return distances;
+        fp << '}' << std::endl;
+        fp.close();
     }
+    
+
 };
 
 int main() {
     std::cout << std::boolalpha;
-    Graph g;
+    Graph graph;
 
     int N, M, K, vert, edg, weight = 0;
     std::cin >> N >> M >> K;
@@ -90,17 +108,18 @@ int main() {
     for (int i = 0; i  < M; ++i)
     {
         std::cin >> vert >> edg;
-        g.addEdge(vert, edg);
+        graph.addEdge(vert, edg);
     }
 
     // Collect and store the keyVertices
     for (int i = 0; i < K; ++i)
     {
         std::cin >> vert;
-        g.addKeyVertex(vert);
+        graph.addKeyVertex(vert);
     }
 
     // Start BruteForceAlgo
+    graph.VisualiseGraph();
 
     return 0;
 }

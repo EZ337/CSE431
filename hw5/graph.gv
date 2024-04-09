@@ -1,2 +1,10 @@
-graph{
+Graph{
+	3 [color=red, style=filled]
+	0 [color=red, style=filled]
+
+	3 -- {2 }
+	4 -- {0 1 2 }
+	2 -- {0 }
+	1 -- {0 }
+	0 -- {}
 }
