@@ -185,16 +185,14 @@ int main(int argc, char *argv[])
         graph.addKeyVertex(vert);
     }
 
+    if (argc > 1)
     { // Visualise Graph
-        std::string filename = "graph";
-        if (argc > 1)
+        std::string filename = argv[1];
+        if (filename.substr(filename.size()-2) != "gv")
         {
-            filename = argv[1];
-            if (filename.substr(filename.size()-2) != "gv")
-            {
-                filename += ".gv";
-            }
+            filename += ".gv";
         }
+
         graph.VisualiseGraph(filename);
     }
 
