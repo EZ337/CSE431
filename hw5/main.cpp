@@ -126,6 +126,7 @@ int Steiner(const Graph& graph)
     int allKeysHit = 0;
     auto keyVerts = graph.GetKeyVertices();
 
+    // Loop through every keyVertex
     for (auto &key : keyVerts)
     {
         ++incVerts;
