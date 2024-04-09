@@ -7,6 +7,7 @@
 #include <limits>
 #include <fstream>
 
+#pragma region Graph
 // Structure to represent an edge in the graph
 struct Edge {
     int to;
@@ -41,18 +42,26 @@ public:
     }
 
     // Check if a vertex is a key vertex
-    bool isKeyVertex(int vertex) {
+    bool isKeyVertex(int vertex) const{
         return keyVertices.find(vertex) != keyVertices.end();
     }
 
     // Begin function for range based loop
     std::unordered_map<int, std::vector<Edge>>::iterator begin() { return adjList.begin(); }
 
+    // Const begin iterator
+    auto cbegin() const {return adjList.cbegin(); }
+
     // End function for range based loop
     std::unordered_map<int, std::vector<Edge>>::iterator end() {return adjList.end();}
 
+    // Const end iterator
+    auto cend() const {return adjList.cend(); }
+
     // const reference to the keyVertices of this graph
-    const std::unordered_set<int>& GetKeyVertices() {return keyVertices;}
+    const std::unordered_set<int>& GetKeyVertices() const{return keyVertices;}
+
+    const auto& GetAll() const {return adjList; }
 
     // Visualises the graph
     void VisualiseGraph(std::string filename = "graph.gv")
@@ -94,10 +103,68 @@ public:
         fp.close();
     }
     
+    /// @brief Index operator
+    /// @param vert Vertex to query (Can cause exception)
+    /// @return const reference to a vector of incident edges
+    const std::vector<Edge>& operator[](int vert) const
+    {
+        return adjList.at(vert);
+    }
 
 };
 
-int main() {
+
+
+#pragma endregion
+
+#pragma region STIG
+
+int Steiner(const Graph& graph)
+{
+    int incVerts = 0; //Included vertices
+    int bestAnswer = 0; // Best Answer so far
+    int allKeysHit = 0;
+    auto keyVerts = graph.GetKeyVertices();
+
+    for (auto &key : keyVerts)
+    {
+        ++incVerts;
+
+        // Edges connected to the key vertex
+        auto incidentVert = graph[key];
+
+
+        // Shortcut, we have to include this vertex since it's the only one connected to this key vertex
+        if (incidentVert.size() == 1 )
+        {
+            ++incVerts; // Include a vertex if it is connected to our keyVertex
+            continue;
+        }
+
+        // For each incidentVertex, Process it's neighbours
+        for (auto vertex : incidentVert)
+        {
+            // Probably have to brute force you
+        }
+    }
+
+
+    // We did not hit every keyVertex. Graph might not be fully connected.
+    if (allKeysHit != keyVerts.size())
+    {
+        return 200;
+    }
+    
+
+    return incVerts;
+}
+
+#pragma endregion
+
+#pragma region Main
+
+int main(int argc, char *argv[]) 
+{
     std::cout << std::boolalpha;
     Graph graph;
 
@@ -118,8 +185,25 @@ int main() {
         graph.addKeyVertex(vert);
     }
 
-    // Start BruteForceAlgo
-    graph.VisualiseGraph();
+    { // Visualise Graph
+        std::string filename = "graph";
+        if (argc > 1)
+        {
+            filename = argv[1];
+            if (filename.substr(filename.size()-2) != "gv")
+            {
+                filename += ".gv";
+            }
+        }
+        graph.VisualiseGraph(filename);
+    }
 
+    // Bruteforce Steiner Graph solution
+    //int result = Steiner(graph);
+
+
+    //std::cout << result << std::endl;
     return 0;
 }
+
+#pragma endregion
