@@ -1,86 +1,53 @@
 #include <iostream>
-#include <ctime>
 #include <vector>
-#include <unordered_set>
+#include <set>
 #include <algorithm>
 
-int main()
-{
-    const int MAX_TIME = 4;
+using namespace std;
 
-    int N, K, skillCount, skillID;
-    std::vector<std::unordered_set<int>> people;
-    std::vector<int> included_People(N);
+void convertToKClique(int N, int M, int K, vector<pair<int, int>>& edges) {
+    // Convert to Independent Set
+    int independentSetSize = N - K;
+    set<int> independentSet;
+    for (int i = 0; i < N; ++i) {
+        independentSet.insert(i);
+    }
+    for (auto& edge : edges) {
+        independentSet.erase(edge.first);
+        independentSet.erase(edge.second);
+    }
 
-    std::cin >> N >> K;
-
-    // Collect each skill for each person
-    for (int i = 0; i < N; ++i)
-    {
-        std::cin >> skillCount;
-        people.push_back(std::unordered_set<int>(skillCount));
-
-        // Add each skill to person[i]
-        for (int j = 0; j < skillCount; ++j)
-        {
-            std::cin >> skillID;
-            people[i].insert(skillID);
-
-        }
-
-        // Start off with everyone in the set
-        included_People.push_back(i);
-
-    } // Data collection end
-
-    // Start time
-    auto start_time = time(nullptr);
-
-    // Initialise the complete set
-    std::unordered_set<int> final_Set;
-    std::vector<int> final_people(N); // Up to N people will be included
-
-    // Start greedy algorithm. Only run for MAX_TIME before quitting and outputting
-    // This is the base. Now it needs optimisation
-
-    for (int i = 0; i < N; ++i)
-    {
-        auto x = (time(nullptr) - start_time);
-        std::cout << "Time is: " << x << std::endl;
-
-
-        if (time(nullptr) - start_time < MAX_TIME)
-        {
-            // Compute the number of uncovered elements by this person's set
-            std::unordered_set<int> tempSet;
-            std::set_union(people[i].begin(), people[i].end(), final_Set.begin(), final_Set.end(),
-                std::inserter(tempSet, tempSet.begin()));
-
-            // If this person's set covers more elements than the current maximum, update
-            if (tempSet.size() > final_Set.size())
-            {
-                std::swap(final_Set, tempSet); // Do it in constant time
-                final_people.push_back(i);
+    // Convert to Clique
+    set<pair<int, int>> complementEdges;
+    for (int i = 0; i < N; ++i) {
+        for (int j = i + 1; j < N; ++j) {
+            if (independentSet.find(i) != independentSet.end() && independentSet.find(j) != independentSet.end()) {
+                // If both vertices are in the independent set, add edge to complement graph
+                complementEdges.insert({i, j});
+            } else if (i != j && find(edges.begin(), edges.end(), make_pair(i, j)) == edges.end()) {
+                // If edge not present in original graph, add it to complement graph
+                complementEdges.insert({i, j});
             }
         }
-        else if (final_Set.size() == K) // If we run out of time AND we got all of our elements,
-        {
-
-            std::swap(included_People, final_people);
-            break;
-        }
-        
-
     }
 
-
-
-
-    // Final output
-    std::cout << included_People.size() << std::endl;
-    for (auto elm : included_People)
-    {
-        std::cout << elm << ' ';
+    // Output the complement edges
+    cout << N << " " << complementEdges.size() << " " << independentSetSize << endl;
+    for (auto& edge : complementEdges) {
+        cout << edge.first << " " << edge.second << endl;
     }
-    std::cout << std::endl;
+}
+
+int main() {
+    int N, M, K;
+    cin >> N >> M >> K;
+
+    vector<pair<int, int>> edges(M);
+    for (int i = 0; i < M; ++i) {
+        cin >> edges[i].first >> edges[i].second;
+    }
+
+    convertToKClique(N, M, K, edges);
+
+    return 0;
 }
