@@ -141,7 +141,7 @@ int main()
     }
     
     // Grab the approximate best cover within the time limit
-    PairSetInt result =  graph.BruteForceSetCover(5);
+    PairSetInt result =  graph.BruteForceSetCover(6);
 
     std:: cout << result.first << std::endl;
     for (auto person : result.second)
