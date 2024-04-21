@@ -3,6 +3,15 @@
 #include <set>
 #include <algorithm>
 #include <unordered_map>
+#include <queue>
+#include <vector>
+
+using std::priority_queue; using std::vector; using std::set;
+
+// Type def cause typing this out is a pain.
+typedef std::pair<int, std::set<int>> PairSetInt;
+// Sorts the pq in ascending order by pair.first
+typedef std::priority_queue<PairSetInt, std::vector<PairSetInt>, std::greater<PairSetInt>> PairSetPQ;
 
 class Graph
 {
@@ -21,6 +30,40 @@ public:
     /// @param skillID skill to add
     void AddToAllSkills(int skillID) {allSkills.insert(skillID); }
 
+    /// @brief Finds the approx set Cover starting from startID
+    /// @param startID The ID to start from to get the approximate best set cover
+    /// @return A set of the included vertices for the set cover
+    std::set<int> SetCover(int startID)
+    {
+        
+    }
+
+
+    /// @brief Brutesforces its way by calling SetCover to start at all the ids avaialable
+    /// in the graph.
+    /// @return The best pair representing the amount of people required and a set of the people required
+    std::pair<int, std::set<int>> BruteForceSetCover()
+    {
+        PairSetPQ pq;
+
+        // Accumalte the possibilities of all the set covers available from each starting id
+        // Mechanisms are in place to stop early though.
+        for (auto [id, skillset] : graph)
+        {
+            std::set<int> setCover = SetCover(id);
+            pq.push(std::make_pair(setCover.size(), setCover));
+        }
+
+        auto x = pq.top();
+        std::cout << "pq Top is: " << x.first << " : {" ;
+        for (auto elm : x.second)
+        {
+            std::cout << elm << ", ";
+        }
+        std::cout << '}' << std::endl;
+
+        return pq.top();
+    }
     
 };
 
@@ -47,6 +90,8 @@ int main()
         }
     }
     
+    // Grab the approximate best cover within the time limit
+    graph.BruteForceSetCover();
 
     std::cout << "Hello World!" << std::endl;
 }
