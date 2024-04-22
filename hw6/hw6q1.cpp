@@ -1,3 +1,7 @@
+/**
+ * A brute force attempt at solving the set cover problem
+*/
+
 #include <iostream>
 #include <map>
 #include <set>
@@ -141,7 +145,7 @@ int main()
     }
     
     // Grab the approximate best cover within the time limit
-    PairSetInt result =  graph.BruteForceSetCover(6);
+    PairSetInt result =  graph.BruteForceSetCover(5);
 
     std:: cout << result.first << std::endl;
     for (auto person : result.second)
